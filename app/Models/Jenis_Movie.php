@@ -1,0 +1,13 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Jenis_Movie extends Model
+{
+    use HasFactory;
+    protected $table = 'jenis_movie';
+    protected $fillable = ['jenis'];
+}
