@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('movie', function(Blueprint $table){
+        Schema::create('movies', function(Blueprint $table){
             $table->uuid('id')->primary();
             $table->string('judul_movie');
             $table->string('gambar');
@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('tanggal_rilis');
             $table->integer('jenis_id');
             $table->string('movie_link');
+            $table->string('duration');
             $table->timestamps();
         });
     }

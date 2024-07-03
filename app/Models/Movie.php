@@ -2,29 +2,25 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 class Movie extends Model
 {
-    use HasFactory;
+    protected $keyType = 'string';
+    public $incrementing = false;
 
-    protected static function boot(){
-        static::creating(function ($model){
-            if(! $model->getKey()){
-                $model->{$model->getKeyName()} = (string) Str::uuid();
-            }
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            // Ensure there are no syntax errors or unexpected function calls here
+            $model->id = (string) Str::uuid();
         });
     }
-    public function getIncrementing()
-    {
-        return false;
-    }
-    public function getKeyType()
-    {
-     return 'string'; 
-    }
-    protected $table = 'movie';
-    protected $fillable = ['judul','gambar','tanggal_upload','tanggal_rilis','jenis_id','movie_link'];
+
+    protected $fillable = [
+        'judul_movie', 'gambar', 'tanggal_upload', 'tanggal_rilis', 'jenis_id', 'movie_link', 'duration'
+    ];
 }
