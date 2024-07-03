@@ -12,7 +12,7 @@ class MovieController extends Controller
     
     public function index() {
         $data = Movie::all();
-        return new ApihResource(true,"Data Ada",$data);
+        return response()->json($data);
     }
     
     
@@ -35,22 +35,24 @@ class MovieController extends Controller
             $image = $request->file('gambar');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
             $image->move(public_path('images'), $imageName);
+            $imagePath = 'images/' . $imageName;
         }
     
         if ($request->hasFile('movie_link')) {
             $video = $request->file('movie_link');
             $videoName = time() . '.' . $video->getClientOriginalExtension();
             $video->move(public_path('videos'), $videoName);
+            $videoPath = 'videos/' . $videoName;
         }
         
        $data = Movie::create([
-            'judul_movie' => $request->judul_movie,
-            'gambar' => $imageName,
-            'tanggal_upload' => $request->tanggal_upload,
+           'judul_movie' => $request->judul_movie,
+            'gambar' => $imagePath, 
+            'tanggal_upload' => now(), 
             'tanggal_rilis' => $request->tanggal_rilis,
             'jenis_id' => $request->jenis_id,
-            'movie_link' => $videoName,
-            'duration' => 0
+            'movie_link' => $videoPath, 
+            'duration' => 0,
         ]);
     
         return new ApihResource(true,"Data Berhasi Ditambah", $data);
@@ -62,15 +64,7 @@ class MovieController extends Controller
         try {
             $movie = Movie::findOrFail($id);
 
-            return response()->json([
-                'judul_movie' => $movie->judul_movie,
-                'gambar' => asset('images/' . $movie->gambar),
-                'tanggal_upload' => $movie->tanggal_upload,
-                'tanggal_rilis' => $movie->tanggal_rilis,
-                'jenis_id' => $movie->jenis_id,
-                'movie_link' => asset('videos/' . $movie->movie_link),
-                'duration' => $movie->duration,
-            ]);
+            return response()->json($movie);
         } catch (\Exception $e) {
             // Handle exception
             return response()->json(['error' => 'Movie not found'], 404);

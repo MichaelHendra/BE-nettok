@@ -23,4 +23,15 @@ class Movie extends Model
     protected $fillable = [
         'judul_movie', 'gambar', 'tanggal_upload', 'tanggal_rilis', 'jenis_id', 'movie_link', 'duration'
     ];
+    protected $appends = ['image_url', 'video_url'];
+    public function getImageUrlAttribute()
+    {
+        return url($this->attributes['gambar']);
+    }
+
+    // Accessor for video URL
+    public function getVideoUrlAttribute()
+    {
+        return url($this->attributes['movie_link']);
+    }
 }
