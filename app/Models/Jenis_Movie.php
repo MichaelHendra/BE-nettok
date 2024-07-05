@@ -9,5 +9,7 @@ class Jenis_Movie extends Model
 {
     use HasFactory;
     protected $table = 'jenis_movie';
+    protected $primaryKey = 'jenis_id';
     protected $fillable = ['jenis'];
+    public $incrementing = true;
 }

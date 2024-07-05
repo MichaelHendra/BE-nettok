@@ -29,7 +29,4 @@ Route::delete('/movies/delete/{id}', [MovieController::class, 'destroy']);
 
 
 Route::get('/movie/genre/{id}', [MovieController::class, 'genre']);
-Route::get('/movie/home/barat', [MovieController::class, 'barat']);
-Route::get('/movie/home/action', [MovieController::class, 'action']);
-Route::get('/movie/home/tedung', [MovieController::class, 'tedung']);
 
