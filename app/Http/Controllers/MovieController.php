@@ -156,4 +156,17 @@ public function destroy($id)
         return response()->json(['error' => 'Movie not found'], 404);
     }
 }
+
+public function genre($id)  {
+        $data = Movie::join('jenis_movie', 'movies.jenis_id','jenis_movie.id')
+        ->where('jenis_movie.id',$id)->get();
+        return response()->json($data);
+}
+
+public function barat() {
+        $data = Movie::where('jenis_id', 1)->get();
+
+        return response()->json($data);
+
+    }
 }

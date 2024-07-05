@@ -11,7 +11,7 @@ class JenisController extends Controller
 {
     public function index()  {
         $data = Jenis_Movie::all();
-        return new ApihResource(true,"Jenis Ada", $data);
+        return response()->json($data);
     }
     public function store(Request $request)  {
         $validator = Validator::make($request->all(),[
@@ -26,7 +26,7 @@ class JenisController extends Controller
             'jenis' => $request->jenis
         ]);
 
-        return new ApihResource(true, 'Data Berhasil Dimasukan', $data);
+        return response()->json($data);
     }
 
     public function update(Request $request, $id)  {
