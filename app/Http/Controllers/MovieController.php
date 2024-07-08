@@ -61,14 +61,18 @@ class MovieController extends Controller
     
     public function show($id)
     {
-        try {
-            $movie = Movie::findOrFail($id);
+        // // try {
+        //     $movie = Movie::find($id);
+        $movie = Movie::join('jenis_movie', 'jenis_movie.jenis_id', '=', 'movies.jenis_id')
+        ->where('movies.id', '=', $id)
+        ->select('movies.*','jenis_movie.jenis_id as jenis_idih', 'jenis_movie.jenis as jenis')
+        ->first();
 
             return response()->json($movie);
-        } catch (\Exception $e) {
-            // Handle exception
-            return response()->json(['error' => 'Movie not found'], 404);
-        }
+        // } catch (\Exception $e) {
+        //     // Handle exception
+        //     return response()->json(['error' => 'Movie not found'], 404);
+        // }
     }
 
     
