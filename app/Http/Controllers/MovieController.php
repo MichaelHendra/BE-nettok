@@ -163,6 +163,7 @@ public function destroy($id)
 
 public function genre($id)  {
         $data = Movie::join('jenis_movie', 'movies.jenis_id','jenis_movie.jenis_id')
+        ->select('movies.*','jenis_movie.jenis as jenis')
         ->where('movies.jenis_id',$id)->get();
         return response()->json($data);
 }
