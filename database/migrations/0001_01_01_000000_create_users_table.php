@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('telp');
+            $table->integer('plan_id');
+            $table->date('date_sub');
+            $table->date('valid_date');
             $table->rememberToken();
             $table->timestamps();
         });

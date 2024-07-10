@@ -24,7 +24,10 @@ class RegisterController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => $request->password,
-            'telp' => $request->telp
+            'telp' => $request->telp,
+            'plan_id' => 0,
+            'date_sub' => '1999-01-01',
+            'valid_date' => '1999-01-01'
         ]);
 
         if($user){
