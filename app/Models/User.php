@@ -34,10 +34,15 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'telp',
+        'order_id',
         'plan_id',
         'date_sub',
         'valid_date'
     ];
+
+    public function subPlan() {
+        return $this->belongsTo(Subs::class,'plan_id', 'sub_id');
+    }
 
     /**
      * The attributes that should be hidden for serialization.
