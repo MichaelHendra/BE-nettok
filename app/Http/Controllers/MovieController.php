@@ -6,6 +6,7 @@ use App\Http\Resources\ApihResource;
 use App\Models\Movie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class MovieController extends Controller
 {
@@ -44,12 +45,12 @@ class MovieController extends Controller
             $video->move(public_path('videos'), $videoName);
             $videoPath = 'videos/' . $videoName;
         }
-
+       $saatIni= Carbon::now()->toDateString();
        $data = Movie::create([
            'judul_movie' => $request->judul_movie,
             'gambar' => $imagePath,
             'desk'=> $request->desk,
-            'tanggal_upload' => now(),
+            'tanggal_upload' => $saatIni,
             'tanggal_rilis' => $request->tanggal_rilis,
             'jenis_id' => $request->jenis_id,
             'movie_link' => $videoPath,
@@ -80,10 +81,10 @@ class MovieController extends Controller
     public function update(Request $request, $id)
 {
     $validator = Validator::make($request->all(), [
-        'judul_movie' => 'required',
-        'tanggal_rilis' => 'required',
+        'judul_movie' => 'required|string|max:255',
+        'tanggal_rilis' => 'required|date',
+        'desk' => 'required',
         'jenis_id' => 'required',
-        'movie_link' => 'required|mimes:mp4,mov,ogg,qt',
     ]);
 
     if ($validator->fails()) {
@@ -92,14 +93,11 @@ class MovieController extends Controller
 
     $movie = Movie::findOrFail($id);
 
-    $oldGambar = $movie->gambar;
-    $oldVideo = $movie->movie_link;
-
-
+    // Handle image upload
     if ($request->hasFile('gambar')) {
-        if($oldGambar){
-            $gambarPath = public_path('images/').$oldGambar;
-            if(file_exists($gambarPath)){
+        if ($movie->gambar) {
+            $gambarPath = public_path('images/') . $movie->gambar;
+            if (file_exists($gambarPath)) {
                 unlink($gambarPath);
             }
         }
@@ -109,10 +107,11 @@ class MovieController extends Controller
         $movie->gambar = $imageName;
     }
 
+    // Handle video upload
     if ($request->hasFile('movie_link')) {
-        if($oldVideo){
-            $videoPath = public_path('videos/').$oldVideo;
-            if(file_exists($videoPath)){
+        if ($movie->movie_link) {
+            $videoPath = public_path('videos/') . $movie->movie_link;
+            if (file_exists($videoPath)) {
                 unlink($videoPath);
             }
         }
@@ -122,13 +121,15 @@ class MovieController extends Controller
         $movie->movie_link = $videoName;
     }
 
-    $movie->judul_movie = $request->judul_movie;
-    $movie->tanggal_rilis = $request->tanggal_rilis;
-    $movie->jenis_id = $request->jenis_id;
+    $movie->judul_movie = $request->input('judul_movie');
+    $movie->desk = $request->input('desk');
+    $movie->tanggal_rilis = $request->input('tanggal_rilis');
+    $movie->jenis_id = $request->input('jenis_id');
     $movie->save();
 
     return response()->json(['success' => 'Movie updated successfully']);
 }
+
 
 
 public function destroy($id)
@@ -177,8 +178,8 @@ public function barat() {
 }
 
 public function search($key) {
-    $data = Movie::where('name', 'LIKE', '%'.$key.'%' )->get();
-
-    return reponse()->json($data);
+    $data = Movie::whereRaw('LOWER(judul_movie) LIKE ?', ['%' . strtolower($key) . '%'])->get();
+    return response()->json($data);
 }
+
 }
