@@ -38,6 +38,9 @@ Route::middleware('auth:api')->group(function(){
     Route::post('/jenis/add',[JenisController::class, 'store']);
     Route::post('/sub/add',[SubController::class, 'store']);
     Route::post('/movies/add',[MovieController::class, 'store']);
+
+    //user
+    Route::put('/user/update/{id}', [UserController::class, 'update']);
 });
 
 Route::get('/jenis', [JenisController::class, 'index']);

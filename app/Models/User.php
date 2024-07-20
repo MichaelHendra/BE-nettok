@@ -76,4 +76,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute(){
+        return url($this->attributes['image']);
+    }
 }
