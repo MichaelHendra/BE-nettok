@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\SupabaseHelper;
 use App\Http\Resources\ApihResource;
 use App\Models\Movie;
 use Illuminate\Http\Request;
@@ -10,6 +11,12 @@ use Carbon\Carbon;
 
 class MovieController extends Controller
 {
+
+    protected $supabaseHelper;
+
+    public function __construct(){
+        $this->supabaseHelper = new SupabaseHelper();
+    }
 
     public function index() {
         $data = Movie::join('jenis_movie', 'jenis_movie.jenis_id', '=', 'movies.jenis_id')->get();
@@ -23,6 +30,7 @@ class MovieController extends Controller
         $validator = Validator::make($request->all(), [
             'judul_movie' => 'required',
             'gambar' => 'required|image|mimes:png,jpeg,jpg,gif',
+            'desk' => 'required',
             'tanggal_rilis' => 'required',
             'jenis_id' => 'required',
             'movie_link' => 'required|mimes:mp4,mov,ogg,qt',
@@ -32,24 +40,29 @@ class MovieController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
+        $imagePath = null;
         if ($request->hasFile('gambar')) {
             $image = $request->file('gambar');
             $imageName = time() . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images'), $imageName);
+            $imagePath = $image->getPathname();
+            $this->supabaseHelper->uploadFile($imagePath, 'images/' . $imageName);
             $imagePath = 'images/' . $imageName;
         }
 
+        $videoPath = null;
         if ($request->hasFile('movie_link')) {
             $video = $request->file('movie_link');
             $videoName = time() . '.' . $video->getClientOriginalExtension();
-            $video->move(public_path('videos'), $videoName);
+            $videoPath = $video->getPathname();
+            $this->supabaseHelper->uploadFile($videoPath, 'videos/' . $videoName);
             $videoPath = 'videos/' . $videoName;
         }
-       $saatIni= Carbon::now()->toDateString();
-       $data = Movie::create([
-           'judul_movie' => $request->judul_movie,
+
+        $saatIni = Carbon::now()->toDateString();
+        $data = Movie::create([
+            'judul_movie' => $request->judul_movie,
             'gambar' => $imagePath,
-            'desk'=> $request->desk,
+            'desk' => $request->desk,
             'tanggal_upload' => $saatIni,
             'tanggal_rilis' => $request->tanggal_rilis,
             'jenis_id' => $request->jenis_id,
@@ -57,7 +70,7 @@ class MovieController extends Controller
             'duration' => 0,
         ]);
 
-        return new ApihResource(true,"Data Berhasi Ditambah", $data);
+        return new ApihResource(true, "Data Berhasil Ditambah", $data);
     }
 
 
@@ -96,28 +109,26 @@ class MovieController extends Controller
     // Handle image upload
     if ($request->hasFile('gambar')) {
         if ($movie->gambar) {
-            $gambarPath = public_path('images/') . $movie->gambar;
-            if (file_exists($gambarPath)) {
-                unlink($gambarPath);
-            }
+            // Delete the existing image from Supabase
+            $this->supabaseHelper->deleteFile('images/' . $movie->gambar);
         }
         $image = $request->file('gambar');
         $imageName = time() . '.' . $image->getClientOriginalExtension();
-        $image->move(public_path('images'), $imageName);
+        $imagePath = $image->getPathname();
+        $this->supabaseHelper->uploadFile($imagePath, 'images/' . $imageName);
         $movie->gambar = $imageName;
     }
 
     // Handle video upload
     if ($request->hasFile('movie_link')) {
         if ($movie->movie_link) {
-            $videoPath = public_path('videos/') . $movie->movie_link;
-            if (file_exists($videoPath)) {
-                unlink($videoPath);
-            }
+            // Delete the existing video from Supabase
+            $this->supabaseHelper->deleteFile('videos/' . $movie->movie_link);
         }
         $video = $request->file('movie_link');
         $videoName = time() . '.' . $video->getClientOriginalExtension();
-        $video->move(public_path('videos'), $videoName);
+        $videoPath = $video->getPathname();
+        $this->supabaseHelper->uploadFile($videoPath, 'videos/' . $videoName);
         $movie->movie_link = $videoName;
     }
 
@@ -137,20 +148,14 @@ public function destroy($id)
     try {
         $movie = Movie::findOrFail($id);
 
-        // Delete the video file
+        // Delete the video file from Supabase
         if ($movie->movie_link) {
-            $videoPath = public_path('videos/') . $movie->movie_link;
-            if (file_exists($videoPath)) {
-                unlink($videoPath); // Delete the file
-            }
+            $this->supabaseHelper->deleteFile('videos/' . $movie->movie_link);
         }
 
-        // Delete the image file
+        // Delete the image file from Supabase
         if ($movie->gambar) {
-            $imagePath = public_path('images/') . $movie->gambar;
-            if (file_exists($imagePath)) {
-                unlink($imagePath); // Delete the file
-            }
+            $this->supabaseHelper->deleteFile('images/' . $movie->gambar);
         }
 
         // Delete the movie record from the database

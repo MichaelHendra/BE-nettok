@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -15,23 +14,34 @@ class Movie extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            // Ensure there are no syntax errors or unexpected function calls here
             $model->id = (string) Str::uuid();
         });
     }
 
     protected $fillable = [
-        'judul_movie', 'gambar','desk', 'tanggal_upload', 'tanggal_rilis', 'jenis_id', 'movie_link', 'duration'
+        'judul_movie', 'gambar', 'desk', 'tanggal_upload', 'tanggal_rilis', 'jenis_id', 'movie_link', 'duration'
     ];
+
     protected $appends = ['image_url', 'video_url'];
-    public function getImageUrlAttribute()
+
+    private function generateUrl($path)
     {
-        return url($this->attributes['gambar']);
+        // Base URL for the Supabase storage bucket
+        $baseUrl = env('SUPABASE_URL') . '/storage/v1/object/public/movie-assets/';
+
+        // Return the full URL
+        return $baseUrl . $path;
     }
 
-    // Accessor for video URL
+    public function getImageUrlAttribute()
+    {
+        $path = $this->attributes['gambar'];
+        return $this->generateUrl($path);
+    }
+
     public function getVideoUrlAttribute()
     {
-        return url($this->attributes['movie_link']);
+        $path = $this->attributes['movie_link'];
+        return $this->generateUrl($path);
     }
 }
